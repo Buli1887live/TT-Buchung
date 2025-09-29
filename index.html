@@ -11,7 +11,8 @@
     body { margin:0; background:#f6f7f9; }
     .wrap { max-width: var(--maxw); margin:24px auto; background:#fff; padding:24px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.06); }
 
-    .title { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px; }
+    /* Titel mit Logo */
+    .title { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px; text-align:center; }
     .title img { height:48px; width:auto; }
     .title h1 { margin:0; font-size:1.6rem; }
 
@@ -20,12 +21,34 @@
     form { display:grid; gap:14px; }
     .grid { display:grid; gap:12px; }
     .grid > div { min-width:0; }
-    @media (min-width: 720px) { .g2 { grid-template-columns:repeat(2, minmax(0,1fr)); } .g3 { grid-template-columns:repeat(3, minmax(0,1fr)); } }
+
+    /* Standard: 1 Spalte (Mobile) */
+    .g2, .g3 { grid-template-columns: 1fr; }
+
+    /* Tablet: 2 Spalten – iPad-Fix: g3 NICHT 3-spaltig */
+    @media (min-width:700px) {
+      .g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .g3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    /* Desktop: 3 Spalten */
+    @media (min-width:1024px) {
+      .g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
 
     label { font-weight:600; display:block; margin-bottom:6px; }
     input[type="text"],input[type="date"],input[type="time"],input[type="email"],textarea{
-      width:100%;max-width:100%;display:block;padding:10px 12px;border:1px solid #d0d5dd;border-radius:10px;font-size:1rem;background:#fff;
+      width:100%; max-width:100%; display:block;
+      padding:10px 12px; border:1px solid #d0d5dd; border-radius:10px; font-size:1rem; background:#fff;
     }
+    /* iOS Safari: Date/Time dürfen nie überlaufen */
+    input[type="date"], input[type="time"] { min-width:0; width:100%; }
+
+    /* Etwas enger auf Tablets, damit’s passt */
+    @media (min-width:700px) and (max-width:1023px) {
+      input[type="text"],input[type="date"],input[type="time"],input[type="email"],textarea{ padding:8px 10px; }
+    }
+
     textarea { min-height:120px; resize:vertical; }
     .radio-row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
     .radio-row label { font-weight:500; margin:0 4px 0 0; }
@@ -43,7 +66,7 @@
 <body>
   <div class="wrap">
     <div class="title">
-      <img src="LGN.svg" alt="Lessing Logo" />
+      <img src="logo.svg" alt="Technik-Team Logo" />
       <h1>Buchungsformular – Technik-Team</h1>
     </div>
     <p class="hint">Buchung von technischem Equipment und/oder des Technik-Teams. Bitte mindestens <strong>zwei Wochen</strong> vor Veranstaltungsbeginn einreichen.</p>
@@ -121,7 +144,7 @@
       <div id="msgOk" class="msg ok" role="status">Danke! Die Buchung wurde übermittelt.</div>
       <div id="msgErr" class="msg err" role="alert">Fehler beim Absenden. Bitte Eingaben prüfen oder später erneut versuchen.</div>
 
-      <div class="footer">Kontakt: <a href="mailto:technikteam@lg-n.de">technikteam@lg-n.de</a> <br> <a href="Dorian.Kannenberg@schule-sh.de">Dorian.Kannenberg@schule-sh.de</a></div>
+      <div class="footer">Kontakt: <a href="mailto:technikteam@lg-n.de">technikteam@lg-n.de</a></div>
     </form>
   </div>
 
@@ -177,4 +200,3 @@
   </script>
 </body>
 </html>
-
