@@ -22,32 +22,43 @@
     .grid { display:grid; gap:12px; }
     .grid > div { min-width:0; }
 
-    /* Standard: 1 Spalte (Mobile) */
-    .g2, .g3 { grid-template-columns: 1fr; }
-
-    /* Tablet: 2 Spalten – iPad-Fix: g3 NICHT 3-spaltig */
-    @media (min-width:700px) {
-      .g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .g3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    }
-
-    /* Desktop: 3 Spalten */
-    @media (min-width:1024px) {
-      .g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
-
+   
     label { font-weight:600; display:block; margin-bottom:6px; }
     input[type="text"],input[type="date"],input[type="time"],input[type="email"],textarea{
       width:100%; max-width:100%; display:block;
       padding:10px 12px; border:1px solid #d0d5dd; border-radius:10px; font-size:1rem; background:#fff;
     }
-    /* iOS Safari: Date/Time dürfen nie überlaufen */
-    input[type="date"], input[type="time"] { min-width:0; width:100%; }
+    /* Basis: 1 Spalte (Phones) */
+.g2, .g3 { grid-template-columns: 1fr; }
 
-    /* Etwas enger auf Tablets, damit’s passt */
-    @media (min-width:700px) and (max-width:1023px) {
-      input[type="text"],input[type="date"],input[type="time"],input[type="email"],textarea{ padding:8px 10px; }
-    }
+/* Tablets (Portrait & Querformat) bis 1199px: 2 Spalten */
+@media (min-width: 700px) {
+  .g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .g3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* Desktop ab 1200px: 3 Spalten */
+@media (min-width: 1200px) {
+  .g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* iOS/iPadOS: Inputs dürfen nie überlaufen und nicht zoomen */
+.grid > div { min-width: 0; }
+input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
+@supports (-webkit-touch-callout: none) {
+  /* verhindert iOS-Zoom auf Inputs */
+  input[type="text"], input[type="date"], input[type="time"], input[type="email"], textarea {
+    font-size: 16px;
+  }
+}
+
+/* Etwas engeres Padding auf Tablets, damit mehr Platz bleibt */
+@media (min-width:700px) and (max-width:1199px) {
+  input[type="text"], input[type="date"], input[type="time"], input[type="email"], textarea {
+    padding: 8px 10px;
+  }
+}
+
 
     textarea { min-height:120px; resize:vertical; }
     .radio-row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
@@ -200,3 +211,4 @@
   </script>
 </body>
 </html>
+
