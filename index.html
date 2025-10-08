@@ -12,9 +12,10 @@
     .wrap { max-width: var(--maxw); margin:24px auto; background:#fff; padding:24px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.06); }
 
     /* Titel mit Logo */
-    .title { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px; text-align:center; }
-    .title img { height:48px; width:auto; }
-    .title h1 { margin:0; font-size:1.6rem; }
+    .title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; text-align:center; flex-wrap:wrap; }
+    .title .logo { height:48px; width:auto; flex:0 0 auto; }
+    .title h1 { margin:0; font-size:1.6rem; flex:1 1 200px; text-align:center; }
+    .title h1 span { display:inline-block; max-width:100%; }
 
     p.hint { margin:0 0 16px; color:#444; text-align:center; }
 
@@ -77,8 +78,9 @@ input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
 <body>
   <div class="wrap">
     <div class="title">
-      <img src="logo.svg" alt="Technik-Team Logo" />
-      <h1>Buchungsformular – Technik-Team</h1>
+      <img class="logo" src="LGN.svg" alt="Logo links" />
+      <h1><span>Buchungsformular – Technik-Team</span></h1>
+      <img class="logo" src="LGN.svg" alt="Logo rechts" />
     </div>
     <p class="hint">Buchung von technischem Equipment und/oder des Technik-Teams. Bitte mindestens <strong>zwei Wochen</strong> vor Veranstaltungsbeginn einreichen.</p>
 
@@ -169,11 +171,23 @@ input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
 
     // Mindestdatum = heute + 14 Tage
     const eventDateEl = document.getElementById('eventDate');
+    let minDateISO = "";
     function setMinDate(){
-      const d = new Date(); d.setDate(d.getDate()+14);
-      eventDateEl.min = d.toISOString().slice(0,10);
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      d.setDate(d.getDate()+14);
+      minDateISO = d.toISOString().slice(0,10);
+      eventDateEl.min = minDateISO;
     }
     setMinDate();
+
+    form.addEventListener('reset', () => {
+      // nach dem Reset wird das Mindestdatum erneut gesetzt
+      setTimeout(() => {
+        setMinDate();
+        eventDateEl.value = "";
+      });
+    });
 
     function showMsg(t){ msgOk.style.display='none'; msgErr.style.display='none'; if(t==='ok') msgOk.style.display='block'; if(t==='err') msgErr.style.display='block'; }
 
@@ -183,6 +197,13 @@ input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
 
       const timeFrom = document.getElementById('timeFrom').value;
       const timeTo   = document.getElementById('timeTo').value;
+      const eventDate = eventDateEl.value;
+
+      if (eventDate && minDateISO && eventDate < minDateISO) {
+        alert('Bitte wählen Sie ein Veranstaltungsdatum, das mindestens zwei Wochen in der Zukunft liegt.');
+        eventDateEl.focus();
+        return;
+      }
       if (timeFrom && timeTo && timeFrom >= timeTo) { alert('Die Endzeit muss nach der Startzeit liegen.'); return; }
 
       if (!SCRIPT_URL.includes('/exec')) { alert('SCRIPT_URL muss auf /exec enden.'); return; }
