@@ -83,7 +83,6 @@ input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
       <img class="logo" src="LGN.svg" alt="Logo rechts" />
     </div>
     <p class="hint">Buchung von technischem Equipment und/oder des Technik-Teams. Bitte mindestens <strong>zwei Wochen</strong> vor Veranstaltungsbeginn einreichen.</p>
-    <p class="hint">Die Buchung muss mindestens zwei Wochen vor Veranstaltungsbeginn per E-Mail an <a href="mailto:technikteam@lg-n.de">technikteam@lg-n.de</a> gesendet oder im Ausnahmefall ausgedruckt bei Herrn Kannenberg abgegeben werden.</p>
 
     <form id="bookingForm" novalidate>
       <div class="grid g3">
@@ -172,11 +171,23 @@ input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
 
     // Mindestdatum = heute + 14 Tage
     const eventDateEl = document.getElementById('eventDate');
+    let minDateISO = "";
     function setMinDate(){
-      const d = new Date(); d.setDate(d.getDate()+14);
-      eventDateEl.min = d.toISOString().slice(0,10);
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      d.setDate(d.getDate()+14);
+      minDateISO = d.toISOString().slice(0,10);
+      eventDateEl.min = minDateISO;
     }
     setMinDate();
+
+    form.addEventListener('reset', () => {
+      // nach dem Reset wird das Mindestdatum erneut gesetzt
+      setTimeout(() => {
+        setMinDate();
+        eventDateEl.value = "";
+      });
+    });
 
     function showMsg(t){ msgOk.style.display='none'; msgErr.style.display='none'; if(t==='ok') msgOk.style.display='block'; if(t==='err') msgErr.style.display='block'; }
 
@@ -186,6 +197,13 @@ input[type="date"], input[type="time"] { width: 100%; min-width: 0; }
 
       const timeFrom = document.getElementById('timeFrom').value;
       const timeTo   = document.getElementById('timeTo').value;
+      const eventDate = eventDateEl.value;
+
+      if (eventDate && minDateISO && eventDate < minDateISO) {
+        alert('Bitte wählen Sie ein Veranstaltungsdatum, das mindestens zwei Wochen in der Zukunft liegt.');
+        eventDateEl.focus();
+        return;
+      }
       if (timeFrom && timeTo && timeFrom >= timeTo) { alert('Die Endzeit muss nach der Startzeit liegen.'); return; }
 
       if (!SCRIPT_URL.includes('/exec')) { alert('SCRIPT_URL muss auf /exec enden.'); return; }
