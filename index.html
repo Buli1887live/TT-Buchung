@@ -133,10 +133,36 @@
       return from < to; // einfache Plausibilitätsprüfung
     }
 
+    const SUBMIT_DELAY_SECONDS = 3;
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function withSubmitDelay(button, seconds, task) {
+      if (!button) return task();
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.dataset.cooldown = 'true';
+      try {
+        for (let remaining = seconds; remaining > 0; remaining--) {
+          button.textContent = `${originalLabel} (${remaining})`;
+          await wait(1000);
+        }
+        button.textContent = 'Wird gesendet…';
+        return await task();
+      } finally {
+        delete button.dataset.cooldown;
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+
     document.getElementById('bookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.currentTarget;
       const fd = new FormData(f);
+      const submitButton = f.querySelector('button[type="submit"]');
 
       // Honeypot
       if (fd.get('website')) return;
@@ -147,11 +173,13 @@
       }
 
       try {
-        const res = await fetch(ENDPOINT, { method: 'POST', body: fd, mode: 'cors' });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        document.getElementById('ok').style.display = 'block';
-        document.getElementById('err').style.display = 'none';
-        f.reset();
+        await withSubmitDelay(submitButton, SUBMIT_DELAY_SECONDS, async () => {
+          const res = await fetch(ENDPOINT, { method: 'POST', body: fd, mode: 'cors' });
+          if (!res.ok) throw new Error('HTTP '+res.status);
+          document.getElementById('ok').style.display = 'block';
+          document.getElementById('err').style.display = 'none';
+          f.reset();
+        });
       } catch (err) {
         document.getElementById('ok').style.display = 'none';
         document.getElementById('err').style.display = 'block';
