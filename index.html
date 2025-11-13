@@ -310,12 +310,11 @@
   </main>
 
   <script>
-    // Web‑App URL aus Google Apps Script eintragen
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbyEmONYSM9-KMUMyFz_8YOBpVKB0y_PFNrYJhiOsOmy-PLqiw6uV1ESUWzp2FqCdUu-/exec"; // z. B. https://script.google.com/macros/s/…/exec
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzbi8PJQ4iiEsAoBouhmlxzv9QUKK9YLUg6QA7ZO1cFRDMdbUSvOrsCLWgemAp7izmz/exec";
 
     function validateTimes(from, to){
       if(!from || !to) return true;
-      return from < to; // einfache Plausibilitätsprüfung
+      return from < to; 
     }
 
     const SUBMIT_DELAY_SECONDS = 0;
