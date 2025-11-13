@@ -20,9 +20,12 @@
     .muted { color:#667085; font-size: .92rem; }
     .inline { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
     .actions { display:flex; gap:.6rem; align-items:center; }
-    button { appearance: none; border: 0; padding: .75rem 1rem; border-radius: 10px; cursor: pointer; font-weight:600; }
-    button[type="submit"] { background:#0b63ce; color:#fff; }
+    button { appearance: none; border: 0; padding: .75rem 1rem; border-radius: 10px; cursor: pointer; font-weight:600; position: relative; overflow: hidden; }
+    button[type="submit"] { background:#0b63ce; color:#fff; display:flex; align-items:center; gap:.6rem; justify-content:center; min-height:48px; }
     button[type="reset"] { background:#eef2f6; }
+    .spinner { width: 20px; height: 20px; border-radius: 999px; border: 3px solid rgba(255,255,255,.5); border-top-color: #fff; animation: spin 1s linear infinite; display:none; }
+    button.is-loading .spinner { display:inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .alert { padding:.8rem 1rem; border-radius:10px; display:none; }
     .alert.ok { background:#e7f5ea; color:#0a6b2d; }
     .alert.err{ background:#fdeaea; color:#9d0b0b; }
@@ -90,13 +93,13 @@
       <!-- Benötigte Technik -->
       <div class="row">
         <label for="equipment">Benötigte Technik</label>
-        <textarea id="equipment" name="equipment" placeholder="z. B. 2x Mikrofon, Beamer, Lichtpult"></textarea>
+        <textarea id="equipment" name="equipment" placeholder="z. B. 2x Mikrofon, Beamer, Lichtpult" required></textarea>
       </div>
 
       <!-- Zusatzinfos -->
       <div class="row">
         <label for="extra">Zusätzliche Informationen</label>
-        <textarea id="extra" name="extra" placeholder="Zugang Schlüsselkasten, Aufbauzeiten, Ansprechpartner vor Ort …"></textarea>
+        <textarea id="extra" name="extra" placeholder="Zugang Schlüsselkasten, Aufbauzeiten, Ansprechpartner vor Ort …" required></textarea>
       </div>
 
       <!-- Kontakt -->
@@ -113,7 +116,10 @@
       </div>
 
       <div class="actions">
-        <button type="submit">Absenden</button>
+        <button type="submit">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Absenden</span>
+        </button>
         <button type="reset">Zurücksetzen</button>
       </div>
 
@@ -133,10 +139,49 @@
       return from < to; // einfache Plausibilitätsprüfung
     }
 
+    const SUBMIT_DELAY_SECONDS = 3;
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function setButtonLabel(button, text) {
+      const label = button.querySelector('.btn-label');
+      if (label) {
+        label.textContent = text;
+      } else {
+        button.textContent = text;
+      }
+    }
+
+    async function withSubmitDelay(button, seconds, task) {
+      if (!button) return task();
+      const originalLabel = button.querySelector('.btn-label')?.textContent || button.textContent;
+      button.disabled = true;
+      button.classList.add('is-loading');
+      try {
+        for (let remaining = seconds; remaining > 0; remaining--) {
+          setButtonLabel(button, `${originalLabel} (in ${remaining}s)`);
+          await wait(1000);
+        }
+        setButtonLabel(button, 'Wird gesendet…');
+        return await task();
+      } finally {
+        button.classList.remove('is-loading');
+        button.disabled = false;
+        setButtonLabel(button, originalLabel);
+      }
+    }
+
     document.getElementById('bookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.currentTarget;
       const fd = new FormData(f);
+      const submitButton = f.querySelector('button[type="submit"]');
+
+      if (!f.reportValidity()) {
+        return;
+      }
 
       // Honeypot
       if (fd.get('website')) return;
@@ -147,11 +192,15 @@
       }
 
       try {
-        const res = await fetch(ENDPOINT, { method: 'POST', body: fd, mode: 'cors' });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        document.getElementById('ok').style.display = 'block';
+        document.getElementById('ok').style.display = 'none';
         document.getElementById('err').style.display = 'none';
-        f.reset();
+        await withSubmitDelay(submitButton, SUBMIT_DELAY_SECONDS, async () => {
+          const res = await fetch(ENDPOINT, { method: 'POST', body: fd, mode: 'cors' });
+          if (!res.ok) throw new Error('HTTP '+res.status);
+          document.getElementById('ok').style.display = 'block';
+          document.getElementById('err').style.display = 'none';
+          f.reset();
+        });
       } catch (err) {
         document.getElementById('ok').style.display = 'none';
         document.getElementById('err').style.display = 'block';
