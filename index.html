@@ -5,123 +5,308 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Buchungsformular – Technik‑Team</title>
   <style>
-    :root { --max: 900px; }
+    :root {
+      --gradient-start: #050b1a;
+      --gradient-end: #0b63ce;
+      --card-surface: #ffffff;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --muted: #64748b;
+      --border: rgba(15,23,42,.18);
+      --radius: 24px;
+    }
     * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.45; margin: 0; background:#f7f7f8; color:#0f172a; }
-    header { background:#0b63ce; color:#fff; padding: 1.2rem 1rem; }
-    header h1 { margin: 0; font-size: 1.25rem; }
-    main { max-width: var(--max); margin: 1rem auto; background:#fff; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,.05); }
-    form { display: grid; gap: .9rem; }
-    .row { display: grid; gap: .6rem; }
-    @media (min-width: 720px){ .grid-2 { grid-template-columns: 1fr 1fr; gap: 1rem; } }
-    label { font-weight: 600; }
-    input[type="text"], input[type="email"], input[type="date"], input[type="time"], textarea, select { width: 100%; padding: .65rem .7rem; border: 1px solid #cdd2d7; border-radius: 8px; font: inherit; background:#fff; }
-    textarea { min-height: 120px; resize: vertical; }
-    .muted { color:#667085; font-size: .92rem; }
-    .inline { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .actions { display:flex; gap:.6rem; align-items:center; }
-    button { appearance: none; border: 0; padding: .75rem 1rem; border-radius: 10px; cursor: pointer; font-weight:600; }
-    button[type="submit"] { background:#0b63ce; color:#fff; }
-    button[type="reset"] { background:#eef2f6; }
-    .alert { padding:.8rem 1rem; border-radius:10px; display:none; }
-    .alert.ok { background:#e7f5ea; color:#0a6b2d; }
-    .alert.err{ background:#fdeaea; color:#9d0b0b; }
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% -10%, rgba(59,130,246,.35), transparent 55%),
+        linear-gradient(140deg, var(--gradient-start), #080c20 45%, var(--gradient-end) 110%);
+      color: #e2e8f0;
+    }
+    header { padding: 3rem 1rem 1.2rem; text-align: center; }
+    header h1 { margin: 0; font-size: clamp(1.8rem, 2.5vw, 3rem); font-weight: 700; color: #f8fafc; }
+    main { max-width: 960px; margin: 0 auto 3rem; padding: 0 1.5rem 2rem; display: grid; gap: 1.5rem; }
+    .card {
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 40px 80px rgba(2,6,23,.35);
+      overflow: hidden;
+    }
+    .hero-card {
+      background: linear-gradient(120deg, rgba(59,130,246,.95), rgba(14,165,233,.9));
+      color: #fff;
+      padding: 2.5rem;
+      position: relative;
+      isolation: isolate;
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: 20% auto auto 60%;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(255,255,255,.55), transparent 70%);
+      opacity: .4;
+      filter: blur(6px);
+      transform: translate(-50%, -10%);
+      z-index: -1;
+    }
+    .hero-card h2 { margin: 0 0 .75rem; font-size: clamp(1.5rem, 1vw + 1rem, 2.2rem); font-weight: 600; }
+    .hero-card p { margin: 0; max-width: 46ch; color: rgba(255,255,255,.9); }
+    .hero-highlights { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-highlights span {
+      background: rgba(255,255,255,.16);
+      border-radius: 999px;
+      padding: .45rem 1rem;
+      font-weight: 600;
+      font-size: .9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .hero-highlights span::before { content: "•"; font-size: 1.2rem; }
+    .form-card {
+      background: var(--card-surface);
+      color: #0f172a;
+      padding: 2.5rem;
+      border: 1px solid rgba(15,23,42,.08);
+      box-shadow: 0 30px 60px rgba(15,23,42,.12);
+    }
+    form { display: flex; flex-direction: column; gap: 2rem; }
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(15,23,42,.08);
+    }
+    .form-section:last-of-type { border-bottom: 0; padding-bottom: 0; }
+    .section-header { display: flex; flex-direction: column; gap: .4rem; }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0;
+    }
+    .section-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: #0f172a; }
+    .row { display: flex; flex-direction: column; gap: .6rem; }
+    label { font-weight: 600; display: block; color: #0f172a; margin-bottom: .2rem; }
+    input[type="text"], input[type="email"], input[type="date"], input[type="time"], textarea, select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      padding: .85rem 1rem;
+      font: inherit;
+      color: #0f172a;
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+      min-height: 52px;
+    }
+    textarea { min-height: 140px; resize: vertical; }
+    input:focus-visible, textarea:focus-visible, select:focus-visible {
+      border-color: var(--primary);
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+    }
+    .grid-2 { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .inline { display: flex; gap: 1rem; flex-wrap: wrap; align-items: stretch; }
+    .schedule-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(240px, 2fr) repeat(2, minmax(140px, 1fr));
+      align-items: end;
+    }
+    @media (max-width: 720px) {
+      .schedule-grid { grid-template-columns: 1fr; }
+    }
+    .choice-slider {
+      gap: .4rem;
+      background: #f4f6fb;
+      border-radius: 999px;
+      padding: .3rem;
+      align-items: stretch;
+      flex-wrap: nowrap;
+      border: 1px solid rgba(15,23,42,.06);
+    }
+    .choice-option { flex: 1; position: relative; display: block; }
+    .choice-option input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+    .choice-option span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: capitalize;
+      height: 52px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #0f172a;
+      transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+    }
+    .choice-option input:checked + span { background: var(--primary); color: #fff; box-shadow: 0 10px 30px rgba(37,99,235,.35); }
+    .choice-option input:focus-visible + span { box-shadow: 0 0 0 3px rgba(37,99,235,.3); }
+    .muted { color: var(--muted); font-size: .9rem; }
+    .note {
+      padding: 1rem 1.25rem;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px dashed rgba(37,99,235,.3);
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: flex-end; }
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: .95rem 1.75rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    button[type="submit"] { background: var(--primary); color: #fff; box-shadow: 0 15px 35px rgba(37,99,235,.4); }
+    button[type="submit"]:hover:not([disabled]) { transform: translateY(-1px); background: var(--primary-dark); }
+    button[type="reset"] { background: #eef2ff; color: #312e81; }
+    .alert {
+      padding: 1rem 1.1rem;
+      border-radius: 16px;
+      font-weight: 600;
+      display: none;
+    }
+    .alert.ok { background: #ecfdf3; color: #027a48; border: 1px solid rgba(5,150,105,.2); }
+    .alert.err { background: #fef3f2; color: #912018; border: 1px solid rgba(225,29,72,.3); }
     .req::after { content:" *"; color:#d10; }
     .sr-only{ position:absolute; left:-9999px; }
-      /* --- Fixes: bessere Zeitfeld-Ausrichtung & Touch-Ziele --- */
-    label{ display:block; margin-bottom:.25rem; font-weight:600; }
-    .inline{ display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap; }
-    .inline > div{ flex:1 1 200px; min-width:160px; }
-    input[type="date"], input[type="time"]{ height:44px; }
-    @media (max-width:520px){ .inline > div{ min-width:100%; } }
+    @media (max-width: 640px) {
+      .hero-card, .form-card { padding: 1.75rem; }
+      header { padding-top: 2rem; }
+      .actions { justify-content: stretch; }
+      button { flex: 1; text-align: center; }
+      .choice-slider { flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Buchungsformular – Technik‑Team</h1>
+    <h1>Lessing-Gymnasium Norderstedt</h1>
   </header>
   <main>
-    <form id="bookingForm" novalidate>
-      <!-- Tag/Zeitraum -->
-      <div class="row grid-2">
-        <div>
-          <label for="date" class="req">Tag der Veranstaltung</label>
-          <input id="date" name="date" type="date" required />
-        </div>
-        <div class="inline">
-          <div>
-            <label for="time_from" class="req">von</label>
-            <input id="time_from" name="time_from" type="time" required />
+    <section class="hero-card card">
+      <p class="eyebrow">Technik-Team</p>
+      <h2>Deine Veranstaltung, unser Ding.</h2>
+      <p>Nutze das Formular, um Termine zu sichern, Personal zu reservieren und Technik vorzumerken - alles direkt online.</p>
+      <div class="hero-highlights">
+        <span>Schnelle Rückmeldung</span>
+        <span>Maßgeschneiderte Technik</span>
+        <span>Team in 14 Tagen bereit</span>
+      </div>
+    </section>
+
+    <section class="form-card card">
+      <form id="bookingForm" novalidate>
+        <div class="form-section">
+          <div class="section-header">
+            <p class="eyebrow">Zeitplanung</p>
+            <h2>Wann findet die Veranstaltung statt?</h2>
           </div>
-          <div>
-            <label for="time_to" class="req">bis</label>
-            <input id="time_to" name="time_to" type="time" required />
+          <div class="schedule-grid">
+            <div class="row">
+              <label for="date" class="req">Tag der Veranstaltung</label>
+              <input id="date" name="date" type="date" required />
+            </div>
+            <div class="row">
+              <label for="time_from" class="req">von</label>
+              <input id="time_from" name="time_from" type="time" required />
+            </div>
+            <div class="row">
+              <label for="time_to" class="req">bis</label>
+              <input id="time_to" name="time_to" type="time" required />
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Name/Ort -->
-      <div class="row grid-2">
-        <div>
-          <label for="event_name" class="req">Name der Veranstaltung</label>
-          <input id="event_name" name="event_name" type="text" placeholder="z. B. Theateraufführung 9b" required />
+        <div class="form-section">
+          <div class="section-header">
+            <p class="eyebrow">Veranstaltung</p>
+            <h2>Was plant ihr?</h2>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label for="event_name" class="req">Name der Veranstaltung</label>
+              <input id="event_name" name="event_name" type="text" placeholder="z. B. Theateraufführung 9b" required />
+            </div>
+            <div>
+              <label for="location" class="req">Veranstaltungsort</label>
+              <input id="location" name="location" type="text" placeholder="z. B. Aula" required />
+            </div>
+          </div>
+          <div class="row">
+            <label for="description" class="req">Beschreibung</label>
+            <textarea id="description" name="description" required placeholder="Kurz beschreiben (Ablauf, benötigte Unterstützung, Besonderheiten)"></textarea>
+          </div>
         </div>
-        <div>
-          <label for="location" class="req">Veranstaltungsort</label>
-          <input id="location" name="location" type="text" placeholder="z. B. Aula" required />
+
+        <div class="form-section">
+          <div class="section-header">
+            <p class="eyebrow">Team & Technik</p>
+            <h2>Womit sollen wir unterstützen?</h2>
+          </div>
+          <div class="row">
+            <label class="req">Personal benötigt?</label>
+            <div class="inline choice-slider">
+              <label class="choice-option">
+                <input type="radio" name="staff_needed" value="ja" required />
+                <span>ja</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="staff_needed" value="nein" />
+                <span>nein</span>
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <label for="equipment">Benötigte Technik</label>
+            <textarea id="equipment" name="equipment" placeholder="z. B. 2x Mikrofon, Beamer, Lichtpult"></textarea>
+          </div>
+          <div class="row">
+            <label for="extra">Zusätzliche Informationen</label>
+            <textarea id="extra" name="extra" placeholder="Zugang Schlüsselkasten, Aufbauzeiten, Ansprechpartner vor Ort …"></textarea>
+          </div>
         </div>
-      </div>
 
-      <!-- Beschreibung -->
-      <div class="row">
-        <label for="description" class="req">Beschreibung der Veranstaltung</label>
-        <textarea id="description" name="description" required placeholder="Kurz beschreiben (Ablauf, benötigte Unterstützung, Besonderheiten)"></textarea>
-      </div>
-
-      <!-- Personal benötigt -->
-      <div class="row">
-        <label class="req">Personal benötigt?</label>
-        <div class="inline">
-          <label><input type="radio" name="staff_needed" value="ja" required /> ja</label>
-          <label><input type="radio" name="staff_needed" value="nein" /> nein</label>
+        <div class="form-section">
+          <div class="section-header">
+            <p class="eyebrow">Kontakt</p>
+            <h2>Wie erreichen wir dich?</h2>
+          </div>
+          <div class="row">
+            <label for="contact" class="req">Kontakt (E‑Mail)</label>
+            <input id="contact" name="contact" type="email" placeholder="name@schule.de" required />
+            <small class="muted">Wir verwenden diese E‑Mail nur zur Rückmeldung zur Buchung.</small>
+          </div>
         </div>
-      </div>
 
-      <!-- Benötigte Technik -->
-      <div class="row">
-        <label for="equipment">Benötigte Technik</label>
-        <textarea id="equipment" name="equipment" placeholder="z. B. 2x Mikrofon, Beamer, Lichtpult"></textarea>
-      </div>
+        <!-- Honeypot gegen Spam -->
+        <div class="sr-only" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
 
-      <!-- Zusatzinfos -->
-      <div class="row">
-        <label for="extra">Zusätzliche Informationen</label>
-        <textarea id="extra" name="extra" placeholder="Zugang Schlüsselkasten, Aufbauzeiten, Ansprechpartner vor Ort …"></textarea>
-      </div>
+        <div class="actions">
+          <button type="submit">Absenden</button>
+          <button type="reset">Zurücksetzen</button>
+        </div>
 
-      <!-- Kontakt -->
-      <div class="row">
-        <label for="contact" class="req">Kontakt (E‑Mail)</label>
-        <input id="contact" name="contact" type="email" placeholder="name@schule.de" required />
-        <small class="muted">Wir verwenden diese E‑Mail nur zur Rückmeldung zur Buchung.</small>
-      </div>
+        <div id="ok" class="alert ok">Danke! Deine Buchung wurde übermittelt.</div>
+        <div id="err" class="alert err">Fehler bei der Übertragung. Bitte später erneut versuchen.</div>
 
-      <!-- Honeypot gegen Spam -->
-      <div class="sr-only" aria-hidden="true">
-        <label for="website">Website</label>
-        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
-      </div>
-
-      <div class="actions">
-        <button type="submit">Absenden</button>
-        <button type="reset">Zurücksetzen</button>
-      </div>
-
-      <div id="ok" class="alert ok">Danke! Deine Buchung wurde übermittelt.</div>
-      <div id="err" class="alert err">Fehler bei der Übertragung. Bitte später erneut versuchen.</div>
-
-      <p class="muted">Hinweis: Bitte mindestens zwei Wochen vor Veranstaltungsbeginn einreichen.</p>
-    </form>
+        <p class="muted note">Hinweis: Bitte mindestens zwei Wochen vor Veranstaltungsbeginn einreichen.</p>
+      </form>
+    </section>
   </main>
 
   <script>
@@ -134,6 +319,7 @@
     }
 
     const SUBMIT_DELAY_SECONDS = 3;
+    const MIN_LEAD_DAYS = 14;
 
     function wait(ms) {
       return new Promise((resolve) => setTimeout(resolve, ms));
@@ -158,9 +344,21 @@
       }
     }
 
+    function isDateAtLeastDaysAway(dateStr, days){
+      if(!dateStr) return true;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const eventDate = new Date(y, m - 1, d);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const minDate = new Date(today);
+      minDate.setDate(minDate.getDate() + days);
+      return eventDate >= minDate;
+    }
+
     document.getElementById('bookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.currentTarget;
+      if (!f.reportValidity()) return;
       const fd = new FormData(f);
       const submitButton = f.querySelector('button[type="submit"]');
 
@@ -169,6 +367,11 @@
 
       if (!validateTimes(fd.get('time_from'), fd.get('time_to'))){
         alert('Zeitspanne prüfen: "von" muss vor "bis" liegen.');
+        return;
+      }
+
+      if (!isDateAtLeastDaysAway(fd.get('date'), MIN_LEAD_DAYS)){
+        alert('Der Veranstaltungstag muss mindestens 14 Tage in der Zukunft liegen.');
         return;
       }
 
