@@ -76,6 +76,91 @@
       border: 1px solid rgba(15,23,42,.08);
       box-shadow: 0 30px 60px rgba(15,23,42,.12);
     }
+    .legal-card {
+      background: rgba(255,255,255,.92);
+      color: #0f172a;
+      padding: 2.25rem;
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 24px 60px rgba(15,23,42,.18);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .legal-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .legal-card h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+    .legal-card a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .legal-card a:hover { text-decoration: underline; }
+    .impressum-fab {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 20% 20%, #60a5fa, #1d4ed8);
+      color: #fff;
+      border: 0;
+      box-shadow: 0 20px 45px rgba(37,99,235,.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+      z-index: 20;
+    }
+    .impressum-fab:hover { transform: translateY(-2px); box-shadow: 0 24px 60px rgba(37,99,235,.55); }
+    .impressum-fab:active { transform: translateY(0); }
+    .impressum-panel {
+      position: fixed;
+      bottom: 88px;
+      right: 22px;
+      width: min(360px, calc(100% - 44px));
+      background: rgba(255,255,255,.98);
+      color: #0f172a;
+      border-radius: 18px;
+      box-shadow: 0 35px 80px rgba(15,23,42,.28);
+      border: 1px solid rgba(15,23,42,.08);
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 19;
+    }
+    .impressum-panel.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .impressum-panel::before {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      right: 18px;
+      width: 20px;
+      height: 20px;
+      background: rgba(255,255,255,.98);
+      border-left: 1px solid rgba(15,23,42,.08);
+      border-bottom: 1px solid rgba(15,23,42,.08);
+      transform: rotate(45deg);
+      border-radius: 4px;
+      box-shadow: 10px 10px 40px rgba(15,23,42,.16);
+    }
+    .impressum-panel .legal-card { box-shadow: none; border: 0; background: transparent; padding: 1.5rem; }
+    @media (max-width: 640px) {
+      .impressum-fab { width: 34px; height: 34px; font-size: .9rem; bottom: 14px; right: 14px; }
+      .impressum-panel {
+        bottom: 70px;
+        right: 10px;
+        width: calc(100% - 20px);
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      .impressum-panel::before { right: 14px; }
+    }
     form { display: flex; flex-direction: column; gap: 2rem; }
     .form-section {
       display: flex;
@@ -308,7 +393,41 @@
         <p class="muted note">Hinweis: Bitte mindestens zwei Wochen vor Veranstaltungsbeginn einreichen.</p>
       </form>
     </section>
+
   </main>
+
+  <button class="impressum-fab" type="button" aria-controls="impressum-panel" aria-expanded="false" aria-label="Impressum &amp; Kontakt">
+    ?
+  </button>
+  <section id="impressum-panel" class="impressum-panel" aria-hidden="true">
+    <div class="legal-card">
+      <p class="eyebrow">Impressum</p>
+      <h2>Angaben gem&auml;&szlig; &sect; 5 TMG</h2>
+      <p>
+        Lessing-Gymnasium Norderstedt<br />
+        Moorbekstraße 15<br />
+        22846 Norderstedt
+      </p>
+      <div class="legal-grid">
+        <div>
+          <h3>Vertreten durch</h3>
+          <p>Schulleitung des Lessing-Gymnasiums<br />Technik-Team</p>
+        </div>
+        <div>
+          <h3>Kontakt</h3>
+          <p>
+            Telefon: <a href="tel:+49405224418">+49 40 522 44 18</a><br />
+            E-Mail: <a href="mailto:technikteam@lg-n.de">technikteam@lg-n.de</a>
+          </p>
+        </div>
+        <div>
+          <h3>Verantwortlich f&uuml;r den Inhalt</h3>
+          <p>Netzwerk AG <br> Lessing-Gymnasiums Norderstedt</p>
+        </div>
+      </div>
+      <p class="muted">Bei technischen Problemen oder Fragen zur Buchung wenden Sie sich bitte &uuml;ber die obenstehenden Kontaktwege an uns. (Stand:11/2025)</p>
+    </div>
+  </section>
 
   <script>
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbzbi8PJQ4iiEsAoBouhmlxzv9QUKK9YLUg6QA7ZO1cFRDMdbUSvOrsCLWgemAp7izmz/exec";
@@ -388,7 +507,34 @@
         document.getElementById('err').style.display = 'block';
       }
     });
+
+    // Floating Impressum toggle
+    (function setupImpressumToggle(){
+      const fab = document.querySelector('.impressum-fab');
+      const panel = document.getElementById('impressum-panel');
+      if (!fab || !panel) return;
+
+      function setOpen(state){
+        panel.classList.toggle('open', state);
+        panel.setAttribute('aria-hidden', state ? 'false' : 'true');
+        fab.setAttribute('aria-expanded', state ? 'true' : 'false');
+      }
+
+      fab.addEventListener('click', () => {
+        const isOpen = panel.classList.contains('open');
+        setOpen(!isOpen);
+      });
+
+      document.addEventListener('click', (evt) => {
+        if (!panel.classList.contains('open')) return;
+        if (panel.contains(evt.target) || fab.contains(evt.target)) return;
+        setOpen(false);
+      });
+
+      document.addEventListener('keydown', (evt) => {
+        if (evt.key === 'Escape') setOpen(false);
+      });
+    })();
   </script>
 </body>
 </html>
-
